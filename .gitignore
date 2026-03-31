@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor / IDE
+*.swp
+*.swo
+*~
+
+# Env & secrets (never commit)
+.env
+.env.*
+!.env.example
+
+# Logs & caches
+*.log
+.npm-cache/
