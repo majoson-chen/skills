@@ -55,7 +55,7 @@ skills/
 | **commit**              | `skills/commit/`              | `/commit`、撰写 message、拆分变更集、安全暂存              |
 | **openclaw-plugin-dev** | `skills/openclaw-plugin-dev/` | 开发或调试 OpenClaw 原生插件（锚定 `openclaw@2026.3.28`） |
 | **using-agentsmd**      | `skills/using-agentsmd/`      | 创建/维护 `AGENTS.md`（写、改、审计、init）；仅写改时加载       |
-| **using-subagent**      | `skills/using-subagent/`      | Subagent dispatch decisions (when/how, task packages, handoff); load when subagents may apply |
+| **using-subagent**      | `skills/using-subagent/`      | Load when subagents available (resident), user mentions subagents, or work runs on subagent |
 
 
 执行工作流前须加载完整技能文件 — 不可仅凭下表即兴发挥。
