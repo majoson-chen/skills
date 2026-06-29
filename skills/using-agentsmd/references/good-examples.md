@@ -20,6 +20,7 @@
 | 技能 | 路径 | 使用场景 |
 | commit | skills/commit/ | /commit、撰写 message |
 | openclaw-plugin-dev | skills/openclaw-plugin-dev/ | OpenClaw 插件开发 |
+| using-agentsmd | skills/using-agentsmd/ | 创建/维护 AGENTS.md |
 
 执行工作流前须加载完整技能文件。
 
@@ -27,9 +28,13 @@
 
 - [ ] 目录有变时已更新 readme.md 表格
 - [ ] diff 中无密钥
+
+<important-notes>
+此文件为 `AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
+</important-notes>
 ```
 
-**为何有效：** 几句定向；工作流用路由不贴正文；表格是索引不是教程；有边界、无理由。
+**为何有效：** 几句定向；工作流用路由不贴正文；表格是索引不是教程；有边界、无理由；`<important-notes>` 提高维护块优先级。
 
 ---
 
@@ -60,6 +65,18 @@
 
 ---
 
+## 标签：路由一行指针
+
+```markdown
+## Git
+
+- 提交改动：加载 `skills/commit/SKILL.md`
+```
+
+**为何有效：** 触发 Skill；不占上下文贴全文。
+
+---
+
 ## 标签：嵌套增量
 
 `packages/api/AGENTS.md` 仅写：
@@ -69,25 +86,41 @@
 
 ## 命令
 
-- 本包测试：`pnpm test`（在 `packages/api/` 下）
+- 本包测试：`pnpm test`
 
 ## 边界
 
 - 不要改 `src/generated/`
 
-此文件为 packages/api/AGENTS.md。事实变更时加载 using-agentsmd 及时修改。
+<important-notes>
+此文件为 `packages/api/AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
+</important-notes>
 ```
 
-**为何有效：** 不重复根文件的 commit 规范或全仓路由；署名用嵌套文件路径。
+**为何有效：** 不重复根文件的 commit 规范或全仓路由；块内写嵌套文件路径。
 
 ---
 
-## 标签：末尾维护署名
+## 标签：末尾 `<important-notes>`
 
 ```markdown
-此文件为 AGENTS.md。事实变更时加载 using-agentsmd 及时修改。
+<important-notes>
+此文件为 `AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
+</important-notes>
 ```
 
 `CLAUDE.md` 则将路径换成 `CLAUDE.md`；嵌套文件用该文件路径（如 `packages/api/AGENTS.md`）。
 
-**为何有效：** 署名对应当前文件；维护提醒指向正确技能；一行、无历史堆砌。
+**为何有效：** 统一模板拉高注意力；块内对应当前文件路径；维护提醒指向 `using-agentsmd`。
+
+---
+
+## 标签：末尾 `<important-notes>`（英文）
+
+```markdown
+<important-notes>
+This file is `AGENTS.md`. Reload `using-agentsmd` when project facts change.
+</important-notes>
+```
+
+**为何有效：** 英文仓语义相同；标签名保持 `important-notes`。

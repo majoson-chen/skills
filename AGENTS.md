@@ -54,12 +54,19 @@ skills/
 | ----------------------- | ----------------------------- | -------------------------------------------- |
 | **commit**              | `skills/commit/`              | `/commit`、撰写 message、拆分变更集、安全暂存              |
 | **openclaw-plugin-dev** | `skills/openclaw-plugin-dev/` | 开发或调试 OpenClaw 原生插件（锚定 `openclaw@2026.3.28`） |
+| **using-agentsmd**      | `skills/using-agentsmd/`      | 创建/维护 `AGENTS.md`（写、改、审计、init）；仅写改时加载       |
 
 
 执行工作流前须加载完整技能文件 — 不可仅凭下表即兴发挥。
+
+编写或维护本文件（`AGENTS.md`）时，加载并遵循 `using-agentsmd`（`skills/using-agentsmd/SKILL.md`）。
 
 ## 完成前自检
 
 - [ ] 已按 **skill-creator** 完成评测迭代（若适用；小改可只做人工 sanity check）。
 - [ ] 目录有变时已更新 `readme.md` 表格。
 - [ ] diff 中无密钥或编辑器垃圾文件。
+
+<important-notes>
+此文件为 `AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
+</important-notes>

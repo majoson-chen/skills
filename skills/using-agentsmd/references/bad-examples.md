@@ -82,3 +82,44 @@ TBD
 ```
 
 **问题：** 没内容就不写该节。
+
+---
+
+## 标签：嵌套抄父文件
+
+```markdown
+# API 包
+
+## Git
+
+- 无用户要求不要 commit
+- 提交：加载 skills/commit/SKILL.md
+
+## 命令
+
+- 本包测试：`pnpm test`
+```
+
+**问题：** commit 规范已在根 `AGENTS.md`；嵌套只写子树增量，不重复父文件。
+
+---
+
+## 标签：署名写技能名
+
+```markdown
+<important-notes>
+此文件来自 using-agentsmd。事实变更时请更新。
+</important-notes>
+```
+
+**问题：** 块内应写文件路径（如 `packages/api/AGENTS.md`），不是技能名。
+
+---
+
+## 标签：未用 important-notes
+
+```markdown
+此文件为 `AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
+```
+
+**问题：** 裸文本优先级低；须用 `<important-notes>` 统一包裹。
