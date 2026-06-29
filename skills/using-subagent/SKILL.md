@@ -1,217 +1,192 @@
 ---
 name: using-subagent
-description: 此指南教会你如何正确使用 subagent，如果你当前环境可用 subagent 或相关功能，必须加载此技能。用户提到 subagent、子代理、worker、派发、dispatch、并行 agent、「派个 agent 去」时必须加载；用户引用工作流类插件中依赖 subagent 的流程时加载；用户已要求 subagent 但仍在主会话串行执行时必须加载。
+description: Load whenever subagents are available and the task may involve delegation. Required when the user mentions subagent, worker, dispatch, parallel agents, or asks you to "spin up an agent"; when following a workflow plugin that depends on subagents; or when the user asked for subagents but you are still doing the work in the main session. Also load when you foresee a heavyweight task (dispatch before you start, not after context is bloated), multiple independent problem domains, or an implementation plan with several loosely coupled tasks. Do not load for lightweight one-step work with no delegation intent. Covers lightweight vs heavyweight, dispatch routing, self-contained task packages, model inheritance, and handoff.
 ---
 
 # using-subagent
 
-指导 Agent 何时、如何派发 subagent。
+Meta-skill for the **controller** (this session): decide **whether**, **why**, and **how** to dispatch **workers** (subagents). Workers run in isolated context; you coordinate and integrate handoffs.
 
-## 轻量与重量级
+## Lightweight vs heavyweight
 
+| | Lightweight | Heavyweight |
+| --- | --- | --- |
+| **Signals** | ≤3 tool calls; short outputs; clear boundary; one-shot deliverable | Many tool calls; wide search or deep investigation; large read context; orthogonal to the main goal |
+| **Examples** | Fix a typo; run one command; answer a pointed question | Repo-wide recon; doc/API research; multi-file code changes; feature work; batch refactors; test fixes |
+| **Action** | Do it in the controller session | **Dispatch before you start**; stay focused on orchestration |
 
-|        | 轻量                                 | 重量级                                                         |
-| ------ | ---------------------------------- | ----------------------------------------------------------- |
-| **信号** | 预计 ≤3 次 tool；tool 返回结果短；边界清晰；一步可交付 | 多步 tool、广撒网或深追查；大量读上下文；与主目标正交                               |
-| **例子** | 改一行、跑单条命令、答一个定点问题                  | 大范围 codebase 梳理、文档/API 摸底、多文件追查；多文件写码、功能实现、批量重构、测试修复；批量比对检索 |
-| **动作** | controller 直接做                     | **开始前** dispatch worker，主会话保持调度与聚焦                          |
+Heavyweight covers **research** and **execution** (not read-only). If doing the work in the main session would bloat context or dilute focus, treat it as heavyweight.
 
+## Terms
 
-重量级包括**摸底类**与**执行类**；不限于只读。凡在主会话执行会明显膨胀上下文或分散专注的，均属此类。
+Host products name subagents differently; the roles are the same:
 
-## 机制抽象
+| Term | Role |
+| --- | --- |
+| **Controller** | This session — decide, integrate, reply to the user |
+| **Worker** | Subagent with a self-contained task package |
+| **Dispatch** | Start a worker in the host environment |
+| **Handoff** | Worker's structured reply back to the controller |
 
+Use whatever dispatch mechanism the host provides; do not hard-code tool names in this skill.
 
-| 概念             | 含义                          |
-| -------------- | --------------------------- |
-| **Controller** | 当前会话；负责决策、整合、对用户回复          |
-| **Worker**     | 子代理；拿自包含任务包，隔离上下文           |
-| **Dispatch**   | 向宿主环境发起 worker              |
-| **Handoff**    | worker 向 controller 回传结构化结果 |
+## Why delegate
 
+| Goal | When | Typical move |
+| --- | --- | --- |
+| **Context length** | Multi-step work you can outsource; process detail need not stay in this session | Worker executes; controller takes handoff only |
+| **Focus** | Heavyweight work is orthogonal to the current goal | Offload **before** you start digging |
+| **Parallelism** | 2+ independent domains, no write conflicts | Dispatch multiple workers in one turn |
+| **Model choice** | User asked for a specific model, or confirmed a switch | Set worker model only then |
 
-按宿主提供的 subagent 能力执行 dispatch；正文不写死具体工具名。
+## Dispatch decisions
 
-## 四个目的
+**Rules**
 
+- Lightweight → controller does it; no dispatch
+- Heavyweight → dispatch **before** you begin; if already mid-task in the main session, **do not interrupt** — finish the turn, dispatch next time
+- User asked for subagents → dispatch; do not substitute serial main-session work
+- Task packages must be self-contained (see **Task packages**); controller schedules and integrates handoffs only
+- Matching workflow plugin exists → load that plugin; otherwise dispatch using **Scenario notes** below
 
-| 目的       | 信号                   | 典型动作                           |
-| -------- | -------------------- | ------------------------------ |
-| 上下文长度控制  | 任务多步且可外包；过程细节不必留在主会话 | 派 worker，controller 只收 handoff |
-| 上下文专注度控制 | 重量级任务与主目标正交          | **开始前**将重量级部分派给 worker         |
-| 并行       | 2+ 独立任务域、无写冲突        | 同轮次 dispatch 多个 worker         |
-| 模型分层     | 用户明确要求，或已确认换模型       | 仅为该 worker 指定非继承模型             |
+| Scenario | Prefer workflow plugin (if installed) |
+| --- | --- |
+| Lightweight | — (no dispatch) |
+| Heavyweight, read-heavy recon / investigation | Offload-style |
+| Single deliverable (including multi-file implementation, clear scope) | — |
+| Multiple independent domains; no shared writes; no ordering dependency | Parallel dispatch |
+| Dependent gate chain or multi-task plan | Plan-driven development |
+| Skill evals, A/B harnesses, domain-specific flows | Matching domain plugin (out of scope here) |
 
+### Examples
 
+| Situation | Dispatch? | Scenario |
+| --- | --- | --- |
+| "Fix this typo" | No | Lightweight |
+| "`pnpm test` failed" and you expect one or two file reads | No | Lightweight |
+| "Use a subagent to map monorepo package dependencies" | Yes | Recon |
+| Writing a PR while also tracing an API across 20 files | Yes | Recon (orthogonal) |
+| Three test files failing for unrelated reasons | Yes | Parallel |
+| Multi-task plan with implement → review per task | Yes | Serial gates (or plan-driven plugin) |
+| User says "use subagent" | Yes | Pick scenario from table |
+| Half the session spent searching; only now considering a worker | Not this turn | Dispatch before starting next time |
+| "Map the whole repo architecture" while the goal is a bugfix | Depends | Offload architecture recon, or stay on the bug |
 
+### Scenario notes
 
-## 派发决策
+Write task packages from **Task packages** below. These bullets are **extra emphasis per scenario**, not a second template.
 
-**原则**
+**Recon / investigation (read-heavy)**
 
-- 轻量 → controller 直接做，不 dispatch
-- 预判重量级 → **开始前** dispatch；该任务已在主会话执行中 → 不中途打断，下轮再派
-- 用户要求 subagent → dispatch，不在主会话串行替代
-- worker 任务包自包含（见「任务包」）；controller 只调度与整合 handoff
-- 有匹配的工作流类插件 → 加载插件；否则按下方场景要点自行派发
+- Read-only by default; no edits or commits unless the user allows
+- Acceptance = answerable outcomes (find X, compare A vs B), not "read as much as possible"
+- Go narrow and deep; cite paths and line numbers, not pasted source walls
 
+**Single deliverable**
 
-| 情形                      | 可优先的工作流类插件      |
-| ----------------------- | --------------- |
-| 轻量                      | —（不 dispatch）   |
-| 重量级，偏摸底/追查（以读为主）        | offload 类       |
-| 单次交付（含重量级写码、多文件改动，边界清晰） | —               |
-| 多独立域、无同文件写入、无先后依赖       | 并行派发类           |
-| 有依赖的 gate 链或多 task 计划   | 计划驱动开发类         |
-| 技能评测、A/B 对比等专用流程        | 对应领域插件（不在本技能范围） |
+- ≤3 tools, enough context already, no delegation intent → controller does it
+- State the deliverable; acceptance = runnable checks (tests, lint)
+- Paste the full plan excerpt into the package — worker does not read plan files
 
+**Parallel**
 
+- Domains independent; no writes to the same files; not implement+review on one task — else serial or one worker
+- One self-contained package per domain; dispatch **all workers in the same turn**
+- After all handoffs: check for conflicting edits or contradictory conclusions
 
+**Serial gates (implement → spec fit → quality)**
 
-### 典型例子
+- Fresh worker per gate; next gate only after the previous passes; on failure, fix implement then re-run from the failed gate
+- Gate 2 (spec fit): paste gate-1 requirements + changed paths; **read the code**, do not trust the implementer's report
+- Gate 3 (quality): after gate 2; maintainability, style, test quality
+- Multi-task plans: gate 1 per task can run in parallel across tasks; **gates within one task stay serial**
 
+## Task packages
 
-| 用户/情境                         | 派？   | 情形                      |
-| ----------------------------- | ---- | ----------------------- |
-| 「把这个 typo 改掉」                 | 不派   | 轻量                      |
-| 「`pnpm test` 挂了」且预计一两次读文件即可定位 | 不派   | 轻量                      |
-| 「用 subagent 摸清 monorepo 包依赖」  | 派    | 摸底/追查                   |
-| 写 PR 同时要查清某 API 在 20 个文件里的用法  | 派    | 摸底（与主目标正交）              |
-| 三个测试文件各报不同错，互不相关              | 派    | 并行                      |
-| 多 task 计划，每 task 实现后要审查       | 派    | 串行 gate（或计划驱动类插件）       |
-| 用户说「用 subagent」               | 派    | 按上表选情形                  |
-| 主会话已搜半个会话才想起该派 worker         | 本轮不派 | 下轮开始前再派                 |
-| 「顺便理一遍仓库架构」但当前目标是修 bug        | 视目标  | 可派 worker 摸底架构，或先聚焦 bug |
+### Self-contained
 
+Workers **do not inherit** the main session: no chat history, no files you already read, no skills you loaded, no other workers' output. Put everything the worker needs in **this dispatch**. Do not tell workers to read plan files or "see above."
 
+### Skeleton
 
-
-### 场景要点
-
-派发时按「任务包」骨架写任务包；下列仅为**该情形多强调的**，不是第二套模板。
-
-**摸底 / 追查（以读为主）**
-
-- 默认只读；不改代码、不 commit（除非用户授权）
-- 验收用可判定结论（找到 X、对比 A vs B），非「尽量多看」
-- 窄而深；路径与行号指针，不贴大段源码
-
-**单次交付**
-
-- 预计 ≤3 次 tool、上下文已够、无派发意图 → controller 自己做
-- 任务说明写清交付物；验收用可执行命令（测试、lint）
-- 计划摘录全文进包，worker 不读计划文件
-
-**并行**
-
-- 各域独立、无同文件写入、非「实现+审查」同一 task；否则串行或单 worker
-- 每域一个自包含任务包；**同一轮** dispatch 全部 worker
-- 收齐 handoff 后查同文件冲突、矛盾结论
-
-**串行 gate（实现 → 符合性 → 质量）**
-
-- 每 gate 新 worker；前一 gate 未通过不进入下一 gate；失败回实现修复后从失败 gate 重审
-- Gate 2（符合性）：粘贴 gate 1 任务说明全文 + 变更路径；**读代码核对**，不信执行者报告
-- Gate 3（质量）：gate 2 通过后；看可维护性、风格、测试质量
-- 多 task：task 间无依赖可并行各 task 的 gate 1；**同一 task 内** gate 必须串行
-
-
-
-## 任务包
-
-
-
-### 自包含
-
-worker **不继承**主会话：看不到聊天记录、父会话已读文件、已加载技能、其他 worker 输出。凡开工所需信息都写进**本次任务包**；不要让 worker 读计划文件或「自己看上文」。
-
-### 通用骨架
-
-controller 按场景选用段落，可增删，自行组织措辞：
+Pick sections as needed; phrase them naturally:
 
 ```markdown
-## 角色与任务
-<一句话>
+## Role and task
+<one line>
 
-## 任务说明
-<全文要求；执行类写清交付物>
+## Requirements
+<full text; for execution work, state the deliverable>
 
-## 上下文
-<路径、报错、已有结论、与主任务的关系>
+## Context
+<paths, errors, decisions, relation to the parent goal>
 
-## 开始前
-不清晰时先向 controller 提问再动手。
+## Before you start
+Ask the controller if scope, requirements, or acceptance are unclear.
 
-## 范围与约束
-<边界；只读或可否改代码/commit>
+## Scope and constraints
+<boundaries; read-only vs edits/commits allowed>
 
-## 验收
-<测试、lint、检查项（执行类）>
+## Acceptance
+<tests, lint, checks — for execution work>
 
-## 工作目录
-<路径>
+## Working directory
+<path>
 
-## 阻塞与升报
-用 handoff Status 升报，勿猜。
+## If stuck
+Use handoff Status to escalate; do not guess.
 
-## 结束时 handoff
-<参考下文 Handoff 参考模板>
+## Handoff
+<see Handoff template below>
 ```
 
-模型默认 inherit；换模型须用户明确或已确认。
+Default model: **inherit** the controller's model. Change model only when the user specifies or confirms.
 
-## 模型策略
+## Model policy
 
+| Case | Behavior |
+| --- | --- |
+| Default | Worker **inherits** controller model |
+| User specifies a model | Dispatch with that model |
+| Forbidden | Upgrading or downgrading worker model without user confirmation |
 
-| 情况        | 行为                            |
-| --------- | ----------------------------- |
-| 默认        | worker **继承** controller 当前模型 |
-| 用户明确要求换模型 | 按用户指定 dispatch                |
-| 禁止        | 未经用户确认擅自升级或降级 worker 模型       |
+Model switches cost real money.
 
+## Handoff
 
-换模型会花费真金白银。
+Workers usually **do not load** this skill. State handoff expectations at the end of the task package; adapt the template below as needed.
 
-## Handoff 契约
+When you are also following a **workflow plugin** or **another skill** that defines handoff format, status values, or review gates, **use that source as authoritative** — this section is a fallback reference only.
 
-worker 通常**不加载**本技能。controller 在任务包末尾说明 handoff 期望即可；可参考下方模板，按场景增删。
-
-### Handoff 参考模板
+### Template
 
 ```
-### 结束时回复 controller（handoff）
+### Reply to controller (handoff)
 
 Status: <DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED>
 
 Summary:
-<结论先行，约 3–8 句>
+<lead with conclusions; ~3–8 sentences>
 
 Artifacts:
-<改动路径；或证据/命令指针；只读任务列路径与行号>
+<changed paths; evidence or command output pointers; for read-only work, paths and line numbers>
 
 Open questions:
-<待拍板项；无则可省略>
+<items for controller or user; omit if none>
 
-宜简洁，不必贴完整 tool 日志或 transcript。
+Keep it concise — no full tool logs or turn-by-turn transcripts.
 ```
 
+### Status meanings
 
+| Status | Meaning |
+| --- | --- |
+| `DONE` | Ready to integrate |
+| `DONE_WITH_CONCERNS` | Done but with reservations or scope edge cases |
+| `NEEDS_CONTEXT` | Missing info; re-dispatch after controller fills gaps |
+| `BLOCKED` | Cannot proceed; escalate to user or revise the plan |
 
-### Status 取值
+### After handoff
 
-
-| Status               | 含义                 |
-| -------------------- | ------------------ |
-| `DONE`               | 完成，可整合             |
-| `DONE_WITH_CONCERNS` | 完成但有保留或触及 scope 边界 |
-| `NEEDS_CONTEXT`      | 缺信息，补后可重派          |
-| `BLOCKED`            | 无法继续，升给用户或改计划      |
-
-
-
-
-### Controller 收到 handoff 后
-
-1. 整合进当前目标；向用户汇报，不贴 worker 全文
-2. `NEEDS_CONTEXT` / `BLOCKED` → 补信息重派或升给用户；`DONE_WITH_CONCERNS` → 处理未决项后再推进
-
+1. Fold results into the current goal; report to the user without dumping the worker's full reply
+2. `NEEDS_CONTEXT` / `BLOCKED` → add context and re-dispatch, or escalate; `DONE_WITH_CONCERNS` → resolve open items before moving on
