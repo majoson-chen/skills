@@ -1,11 +1,11 @@
-# 反例
+# Bad examples
 
 ---
 
-## 标签：目录堆砌（检索型）
+## Tag: directory dump (for "discovery")
 
 ```markdown
-## 项目结构
+## Project structure
 
 src/
   components/
@@ -13,113 +13,113 @@ src/
     Modal.tsx
   hooks/
   utils/
-  …（30 行）
+  … (30 more lines)
 ```
 
-**问题：** 为检索而写；占满上下文；Agent 自己会 `ls`。
+**Problem:** written for browsing; burns context; the agent can `ls` on its own.
 
 ---
 
-## 标签：Skill 全文复制
+## Tag: full Skill pasted
 
 ```markdown
-## 提交流程
+## Commit workflow
 
-1. 先跑 git status…
-（粘贴 commit 技能 80 行）
+1. Run git status…
+(paste 80 lines from the commit skill)
 ```
 
-**问题：** 应写 `加载 skills/commit/SKILL.md` 一行路由。
+**Problem:** should be one route line: `load skills/commit/SKILL.md`.
 
 ---
 
-## 标签：对比 priming
+## Tag: contrast priming
 
 ```markdown
-- 用 pnpm --filter <pkg>，不要在根目录盲跑
+- use pnpm --filter <pkg>, don't blindly run from repo root
 ```
 
-**问题：** 「根目录盲跑」反而种下多余分支。应写：`跑包内任务：pnpm --filter <pkg> <script>`。
+**Problem:** "blindly run from repo root" plants an extra failure mode. Write: `package-scoped tasks: pnpm --filter <pkg> <script>`.
 
 ---
 
-## 标签：通用废话
+## Tag: generic filler
 
 ```markdown
-## 代码规范
+## Code standards
 
-请遵循最佳实践，保持代码整洁，编写可维护的代码。
+Follow best practices. Keep code clean and maintainable.
 ```
 
-**问题：** 无仓库信息；模型已知。
+**Problem:** no repo-specific signal; the model already knows this.
 
 ---
 
-## 标签：删了又解释
+## Tag: explain the deletion
 
 ```markdown
-## 测试
+## Tests
 
-<!-- 已删除 npm test，现改用 pnpm -->
+<!-- removed npm test; now pnpm -->
 
-- 全量测试：`pnpm test`
+- full suite: `pnpm test`
 ```
 
-**问题：** 流水账；删了不必说明。
+**Problem:** changelog noise; if it's gone, don't narrate it.
 
 ---
 
-## 标签：凑模板空章
+## Tag: empty template sections
 
 ```markdown
-## 安全考虑
+## Security
 
-（无内容）
+(no content)
 
-## 部署
+## Deployment
 
 TBD
 ```
 
-**问题：** 没内容就不写该节。
+**Problem:** omit sections with nothing to say.
 
 ---
 
-## 标签：嵌套抄父文件
+## Tag: nested file copies parent
 
 ```markdown
-# API 包
+# API package
 
 ## Git
 
-- 无用户要求不要 commit
-- 提交：加载 skills/commit/SKILL.md
+- do not commit without user request
+- commits: load skills/commit/SKILL.md
 
-## 命令
+## Commands
 
-- 本包测试：`pnpm test`
+- package tests: `pnpm test`
 ```
 
-**问题：** commit 规范已在根 `AGENTS.md`；嵌套只写子树增量，不重复父文件。
+**Problem:** commit rules already live in root `AGENTS.md`; nested files hold subtree deltas only.
 
 ---
 
-## 标签：署名写技能名
+## Tag: footer names the skill
 
 ```markdown
 <important-notes>
-此文件来自 using-agentsmd。事实变更时请更新。
+This file comes from using-agentsmd. Update when facts change.
 </important-notes>
 ```
 
-**问题：** 块内应写文件路径（如 `packages/api/AGENTS.md`），不是技能名。
+**Problem:** name the file path (e.g. `packages/api/AGENTS.md`), not the skill.
 
 ---
 
-## 标签：未用 important-notes
+## Tag: maintenance note without `<important-notes>`
 
 ```markdown
-此文件为 `AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
+This file is `AGENTS.md`. Reload `using-agentsmd` when project facts change.
 ```
 
-**问题：** 裸文本优先级低；须用 `<important-notes>` 统一包裹。
+**Problem:** bare text gets low priority; wrap with `<important-notes>`.

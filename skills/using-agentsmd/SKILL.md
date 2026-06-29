@@ -1,135 +1,134 @@
 ---
 name: using-agentsmd
-description: 创建或维护 AGENTS.md 时必须先加载（CLAUDE.md 同理）。适用于用户要求写、改、审计、init 生成该文件，或你即将 create、edit、append 任何根/嵌套 AGENTS.md。日常仅遵循已注入内容干活时不加载。涵盖 prompt 式编写、红绿线、归属与路由、嵌套、审计删减。不用于一般编码任务。
+description: Load before creating or maintaining AGENTS.md (same rules apply to CLAUDE.md). Use when the user asks to write, edit, audit, or init the file, or when you are about to create, edit, or append any root or nested AGENTS.md. Do not load when you are only following already-injected AGENTS.md content for other work. Covers prompt-style writing, red/green lines, placement and routing, nesting, and audit-driven trimming. Not for general coding tasks.
 ---
 
 # using-agentsmd
 
-在动手创建或修改任何 `AGENTS.md` 之前，遵循本技能。Claude Code 使用 `CLAUDE.md`，纪律相同；下文统称 `AGENTS.md`。
+Follow this skill before you create or modify any `AGENTS.md`. Claude Code uses `CLAUDE.md` with the same discipline; below, `AGENTS.md` means both unless noted.
 
 ## Hard gate
 
-1. 即将 `create` / `edit` / `append` 任何根或嵌套 `AGENTS.md` → **必须先加载本技能**
-2. 无用户提示不主动改；要改须用户明确要求，或先征得许可
-3. 用户说「写进 AGENTS.md」→ 先做归属判断（见下）；用户坚持后再写入
-4. 日常按已注入的 `AGENTS.md` 执行其他任务 → **不加载本技能**
-5. 仓库尚无 `AGENTS.md` → **不默认补全**；有稳定非可推断约定或用户要求时再建
+1. About to `create` / `edit` / `append` any root or nested `AGENTS.md` → **load this skill first**
+2. Do not change `AGENTS.md` without a user prompt; edits require an explicit request or prior permission
+3. When the user says "put this in AGENTS.md" → run placement judgment first (below); write only if they still want it there
+4. Executing other tasks under already-injected `AGENTS.md` → **do not load this skill**
+5. No `AGENTS.md` in the repo → **do not create one by default**; add when there are stable, non-obvious conventions or the user asks
 
-## 是什么
+## What it is
 
-`AGENTS.md` = 仓库级、被动注入的**高信号 prompt 片段**。
+`AGENTS.md` is a repo-level, passively injected **high-signal prompt snippet**.
 
-- 写好可：少犯错、走快路、少重复沟通
-- 不是：给人看的文档、百科全书、变更日志、Skill/Rule/README 的副本
+- Done well: fewer mistakes, faster defaults, less repeated human steering
+- Not: human docs, an encyclopedia, a changelog, or a copy of Skills / Rules / README
 
-## 提示词纪律
+## Prompt discipline
 
-按 **写 prompt** 的标准写，不按写 README 的标准写。
+Write it like a **prompt**, not a README.
 
-- **肯定式**：说做什么、用什么；不列举未发生的错误路径
-- ❌ `用 pnpm --filter <pkg>，不要根目录盲跑` → ✅ `跑包内任务：pnpm --filter <pkg> <script>`
-- 一条一动作；命令与路径写全
-- **只写限制和做法，不写理由**
-- 无元叙事（「本节说明…」）、无人话 filler；**例外：** 末尾 `<important-notes>` 维护块（见工作流）
+- **Affirmative phrasing**: say what to do and which tool/path to use; do not enumerate error paths that have not happened
+- ❌ `use pnpm --filter <pkg>, don't blindly run from repo root` → ✅ `package-scoped tasks: pnpm --filter <pkg> <script>`
+- One action per line; commands and paths must be complete
+- **State constraints and practice only — no rationale**
+- No meta-narrative ("this section explains…") and no conversational filler; **exception:** trailing `<important-notes>` maintenance block (see Workflow)
 
-**红线**（不要 / 禁止）：仅当该误行高频且不说就会犯。否则不提。
+**Red lines** (don't / never): only when the mistake is frequent and costly if unstated. Otherwise omit.
 
-**绿线**（优先 / 用 X / 放这里）：本仓最高效、最正确的做法。
+**Green lines** (prefer / use X / put files here): the fastest, correct way in *this* repo.
 
-## 写什么 / 不写什么
-
-
-| 写                                 | 不写                    |
-| --------------------------------- | --------------------- |
-| 2–4 句定向（是什么仓、边界）                  | 长篇背景、愿景、市场定位          |
-| 关键节点目录（浅层，为**摆放文件**）              | 深层目录树、逐文件说明           |
-| 非显而易见的完整命令                        | manifest/README 已有的命令 |
-| 绿线、必要红线                           | 通用最佳实践、user rules 复述  |
-| 路由指针（Skill / docs / 嵌套 AGENTS.md） | 工作流全文、架构/API 长文       |
-| 末尾 `<important-notes>`（新建或大幅改写时，见工作流） | 逐条修订说明、变更历史            |
+## What belongs / what does not
 
 
-**判断：** 换一个人、换一个 Agent 工具，这条仍应成立吗？否 → 不进 `AGENTS.md`（单人维护仓可务实处理个人偏好）。
-
-**引用 ≠ 复制：** 链到 Skill/docs，禁止把正文抄进来。工作流须在 `AGENTS.md` 留路由，否则不会自动触发。
-
-## 与其他载体
-
-
-| 载体              | 放什么                  |
-| --------------- | -------------------- |
-| `AGENTS.md`     | 跨工具常驻：定向、命令、红绿线、路由   |
-| Skills          | 完整工作流                |
-| `.cursor/rules` | Cursor 专属、可按 glob 生效 |
-| `docs/`         | 深度材料；`AGENTS.md` 只链接 |
+| Include | Exclude |
+| ------- | ------- |
+| 2–4 sentences of orientation (what repo, scope) | Long background, vision, market positioning |
+| Shallow key directories (for **where to put files**) | Deep trees, per-file inventories |
+| Non-obvious, copy-paste-ready commands | Commands already in manifest / README |
+| Green lines and necessary red lines | Generic best practices, user-rules paraphrase |
+| Routing pointers (Skills / docs / nested `AGENTS.md`) | Full workflows, long architecture/API prose |
+| Trailing `<important-notes>` on new or major rewrites (see Workflow) | Line-by-line edit notes, change history |
 
 
-同一事实只维护一处。
+**Litmus test:** Would this still matter with a different maintainer or a different agent tool? If no → it does not belong in `AGENTS.md` (solo-maintainer repos may keep personal prefs pragmatically).
 
-**优先级：** 用户当前明确指令 > `AGENTS.md` > Agent 默认习惯。
+**Point, don't paste:** link to Skills and docs; never copy their bodies. Workflows need a route in `AGENTS.md` or they will not auto-trigger.
 
-`AGENTS.md` 语言跟仓库维护习惯；不强制英文。
+## Other context carriers
 
-## 嵌套与体积
 
-**嵌套** = 在子目录放 `AGENTS.md`（如 `packages/api/AGENTS.md`）。处理该目录及子路径下文件时，工具加载**路径最近**的一份，与祖先文件合并，**子级优先**。
+| Carrier | Holds |
+| ------- | ----- |
+| `AGENTS.md` | Cross-tool baseline: orientation, commands, red/green lines, routes |
+| Skills | Full workflows |
+| `.cursor/rules` | Cursor-specific; can scope by glob |
+| `docs/` | Depth; `AGENTS.md` links only |
 
-| 文件 | 写什么 |
-|------|--------|
-| 根 `AGENTS.md` | 全仓约定 |
-| 嵌套 `AGENTS.md` | 该子树特有：命令、关键目录、红绿线 |
 
-嵌套只写**增量**；不抄父文件。
+Maintain each fact in one place.
 
-**主动使用嵌套：** 约定仅属某个包/应用/模块；根文件变长或出现子树专用段；monorepo。将子树内容**迁到**对应目录的 `AGENTS.md`，根文件只留全仓部分。
+**Precedence:** user's current explicit instruction > `AGENTS.md` > agent defaults.
 
-**新建时：** 先判断全仓还是子树；子树特有 → 在对应目录建嵌套文件，不写进根文件。
+Match `AGENTS.md` language to repo maintainer habit; English is not required.
 
-- 无固定章节模板；没内容不凑章
-- 「极短」是纪律（信号密度），不是行数 KPI；真写长了应嵌套或迁出
-- 维护时优先改原段落，不轻易加新一级标题
+## Nesting and size
 
-## 工作流
+**Nested `AGENTS.md`** = an `AGENTS.md` in a subdirectory (e.g. `packages/api/AGENTS.md`). When working under that path, tools load the **nearest** file, merge with ancestors, **child wins**.
 
-**新建 / init：** 搜集仓库事实（package.json、CI、目录、代码习惯）→ 对话对齐（有 brainstorming 类型插件则用）→ 再落笔；禁止一键吐全文。
+| File | Content |
+| ---- | ------- |
+| Root `AGENTS.md` | Repo-wide conventions |
+| Nested `AGENTS.md` | Subtree-only: commands, key dirs, red/green lines |
 
-**归属判断（写入前）：**
+Nested files are **incremental only** — never duplicate the parent.
+
+**Prefer nesting when:** conventions apply to one package/app/module only; the root file is getting long or sprouting subtree-only sections; monorepo layout. **Move** subtree content into that directory's `AGENTS.md`; keep only repo-wide material at the root.
+
+**On create:** decide repo-wide vs subtree-first; if subtree-specific → create nested file there, not in root.
+
+- No fixed section template; omit empty sections
+- "Short" means **signal density**, not a line-count KPI; if it grows long, nest or move content out
+- When editing, revise existing paragraphs before adding new top-level headings
+
+## Workflow
+
+**New / init:** gather repo facts (package.json, CI, layout, code habits) → align in conversation (use a brainstorming-style plugin if available) → then write; no one-shot dump
+
+**Placement (before writing):**
 
 ```
-这条信息属于哪里？
-  → Skill 工作流？     写一行路由指针，不贴 Skill 全文
-  → docs / Rule？      链过去
-  → 子树特有？         嵌套 AGENTS.md
-  → 全仓、非可推断？   写入根 AGENTS.md
+Where does this fact belong?
+  → Skill workflow?     one-line route; never paste the Skill body
+  → docs / Rule?        link there
+  → Subtree-only?       nested AGENTS.md
+  → Repo-wide, non-obvious? root AGENTS.md
 ```
 
-**编写：** 对照仓库写真事实；不猜、不抄别仓。
+**Writing:** mirror the repo; no guessing, no copying from other repos.
 
-**末尾 `<important-notes>`（新建或大幅改写时）：** 正文最后用**统一模板**，提高注意力优先级：
+**Trailing `<important-notes>` (new file or major rewrite):** end the body with this template to raise attention:
 
 ```markdown
 <important-notes>
-此文件为 `AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
+This file is `AGENTS.md`. Reload `using-agentsmd` when project facts change.
 </important-notes>
 ```
 
-- `AGENTS.md` 换成**正在编写的文件路径**（嵌套如 `packages/api/AGENTS.md`；`CLAUDE.md` 同理）
-- 不写技能名代替文件路径
-- 句内语义可随仓库语言调整；**标签名 `important-notes` 保持不变**
-- 小改、块内仍准确：不必动；缺块的大改：补上
+- Replace `AGENTS.md` with the **path of the file you are writing** (nested: `packages/api/AGENTS.md`; same for `CLAUDE.md`)
+- Do not substitute the skill name for the file path
+- Wording inside the block may follow repo language; **keep the tag name `important-notes`**
+- Minor edits with an accurate block: leave it; major rewrite missing the block: add it
 
-英文示例见 `references/good-examples.md`。
+More footer variants in `references/good-examples.md`.
 
-**审计：** 编辑器，不是扩写器——先删重复/过时/废话 → 再迁错放内容（子树专用段迁到嵌套 `AGENTS.md`）→ 最后才补。删就是删，不附「此处已删除…」。不当流水账。
+**Audit:** treat the file as an **editor**, not an expander — remove duplicate / stale / low-signal text first → relocate misplaced content (subtree sections → nested `AGENTS.md`) → add last. Delete means delete; no "removed X because…". Not a running log.
 
-**执行已有 AGENTS.md（其他任务）：** 直接照做；不为校验再读一遍。
+**Following existing `AGENTS.md` (other tasks):** comply directly; do not re-read for validation.
 
-**配置变更：** 可口头提醒同步 `AGENTS.md`；实际改文件前须加载本技能。
+**Config changes:** you may verbally remind to sync `AGENTS.md`; load this skill before actually editing the file.
 
-## 正反例
+## Examples
 
-需要对照时读取：
+Read when you need contrast:
 
 - `references/good-examples.md`
 - `references/bad-examples.md`
-

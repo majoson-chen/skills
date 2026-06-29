@@ -1,121 +1,107 @@
-# 正例
+# Good examples
 
-每个示例附标签。学习「为何有效」，不要复制结构当模板。
+Each example has a tag. Learn *why* it works — do not treat the layout as a mandatory template.
 
 ---
 
-## 标签：定向 + 路由 + 边界（本仓库风格）
+## Tag: orientation + routing + boundaries (skills-repo style)
 
 ```markdown
-# Agent 说明 — 个人 Agent Skills
+# Agent notes — personal Agent Skills
 
-本仓库是面向 Coding Agent 的 Agent Skills 小集合。
+Small [Agent Skills](https://agentskills.io/specification) collection for coding agents.
 
-## 编写或编辑技能
+## Authoring skills
 
-唯一入口：加载并遵循 `skill-creator`（`.agents/skills/skill-creator/SKILL.md`）。
+Single entry point: load and follow `skill-creator` (`.agents/skills/skill-creator/SKILL.md`).
 
-## 技能目录（速查）
+## Skill index
 
-| 技能 | 路径 | 使用场景 |
-| commit | skills/commit/ | /commit、撰写 message |
-| openclaw-plugin-dev | skills/openclaw-plugin-dev/ | OpenClaw 插件开发 |
-| using-agentsmd | skills/using-agentsmd/ | 创建/维护 AGENTS.md |
+| Skill | Path | When |
+| commit | skills/commit/ | /commit, commit messages |
+| openclaw-plugin-dev | skills/openclaw-plugin-dev/ | OpenClaw plugin work |
+| using-agentsmd | skills/using-agentsmd/ | create/maintain AGENTS.md |
 
-执行工作流前须加载完整技能文件。
+Load the full skill file before running a workflow.
 
-## 完成前自检
+## Pre-ship checklist
 
-- [ ] 目录有变时已更新 readme.md 表格
-- [ ] diff 中无密钥
+- [ ] readme.md table updated when skills change
+- [ ] no secrets in the diff
 
 <important-notes>
-此文件为 `AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
+This file is `AGENTS.md`. Reload `using-agentsmd` when project facts change.
 </important-notes>
 ```
 
-**为何有效：** 几句定向；工作流用路由不贴正文；表格是索引不是教程；有边界、无理由；`<important-notes>` 提高维护块优先级。
+**Why it works:** brief orientation; workflows routed, not inlined; table is an index, not a tutorial; boundaries without rationale; `<important-notes>` elevates the maintenance block.
 
 ---
 
-## 标签：关键节点目录（摆放）
+## Tag: key directories (placement)
 
 ```markdown
-## 关键目录
+## Key directories
 
-- `src/features/` — 功能模块；新页面放这里
-- `server/routes/` — HTTP 路由
+- `src/features/` — feature modules; new pages go here
+- `server/routes/` — HTTP routes
 ```
 
-**为何有效：** 浅层、指导摆放，不是深层树。
+**Why it works:** shallow list that guides placement, not a deep tree.
 
 ---
 
-## 标签：绿线（肯定式命令）
+## Tag: green lines (affirmative commands)
 
 ```markdown
-## 命令
+## Commands
 
-- 全量测试：`pnpm test`
-- 单测：`pnpm vitest run -t "<name>"`
-- 包内任务：`pnpm --filter <pkg> <script>`
+- full test suite: `pnpm test`
+- single test: `pnpm vitest run -t "<name>"`
+- package-scoped: `pnpm --filter <pkg> <script>`
 ```
 
-**为何有效：** 可复制；无对比噪声；无解释段落。
+**Why it works:** copy-paste ready; no contrast noise; no explanatory paragraphs.
 
 ---
 
-## 标签：路由一行指针
+## Tag: one-line Skill route
 
 ```markdown
 ## Git
 
-- 提交改动：加载 `skills/commit/SKILL.md`
+- commits: load `skills/commit/SKILL.md`
 ```
 
-**为何有效：** 触发 Skill；不占上下文贴全文。
+**Why it works:** triggers the Skill without pasting its full body into context.
 
 ---
 
-## 标签：嵌套增量
+## Tag: nested increment only
 
-`packages/api/AGENTS.md` 仅写：
+`packages/api/AGENTS.md` contains only:
 
 ```markdown
-# API 包
+# API package
 
-## 命令
+## Commands
 
-- 本包测试：`pnpm test`
+- package tests: `pnpm test`
 
-## 边界
+## Boundaries
 
-- 不要改 `src/generated/`
+- do not edit `src/generated/`
 
 <important-notes>
-此文件为 `packages/api/AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
+This file is `packages/api/AGENTS.md`. Reload `using-agentsmd` when project facts change.
 </important-notes>
 ```
 
-**为何有效：** 不重复根文件的 commit 规范或全仓路由；块内写嵌套文件路径。
+**Why it works:** does not repeat root commit rules or repo-wide routes; footer names the nested file path.
 
 ---
 
-## 标签：末尾 `<important-notes>`
-
-```markdown
-<important-notes>
-此文件为 `AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
-</important-notes>
-```
-
-`CLAUDE.md` 则将路径换成 `CLAUDE.md`；嵌套文件用该文件路径（如 `packages/api/AGENTS.md`）。
-
-**为何有效：** 统一模板拉高注意力；块内对应当前文件路径；维护提醒指向 `using-agentsmd`。
-
----
-
-## 标签：末尾 `<important-notes>`（英文）
+## Tag: trailing `<important-notes>`
 
 ```markdown
 <important-notes>
@@ -123,4 +109,18 @@ This file is `AGENTS.md`. Reload `using-agentsmd` when project facts change.
 </important-notes>
 ```
 
-**为何有效：** 英文仓语义相同；标签名保持 `important-notes`。
+For `CLAUDE.md`, use `CLAUDE.md` as the path; for nested files, use that file's path (e.g. `packages/api/AGENTS.md`).
+
+**Why it works:** consistent template raises salience; path matches the file being maintained; reload points at `using-agentsmd`.
+
+---
+
+## Tag: trailing `<important-notes>` (non-English repo)
+
+```markdown
+<important-notes>
+此文件为 `AGENTS.md`。事实变更时加载 `using-agentsmd` 及时修改。
+</important-notes>
+```
+
+**Why it works:** inner text may follow maintainer language; tag name stays `important-notes`.
