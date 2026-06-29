@@ -8,6 +8,7 @@ Small collection of [Agent Skills](https://agentskills.io/specification) for Cur
 |--------|------|---------|
 | **commit** | [`commit`](skills/commit) | Safe, structured git commit flow: diff/history, staging, risk checks, split commits, message style. Use with `/commit` or when drafting commits. |
 | **openclaw-plugin-dev** | [`openclaw-plugin-dev`](skills/openclaw-plugin-dev) | OpenClaw native plugin reference (manifest, loader, API, hooks, channels, providers). Anchored to `openclaw@2026.3.28`. |
+| **using-agentsmd** | [`using-agentsmd`](skills/using-agentsmd) | 创建/维护 AGENTS.md：prompt 式编写、红绿线、归属路由、嵌套、审计删减。仅写改时加载。 |
 
 ## Install
 
